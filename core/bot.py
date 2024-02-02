@@ -17,12 +17,14 @@ bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    state = 'start'
+    global STATE
+    STATE = 'start'
     bot.reply_to(message, 'Hi there, I am PC Controller Bot. I will help you to be able to control your system from anywhere.')
 
 @bot.message_handler(commands=['login'])
 def send_welcome(message):
-    state = 'login'
+    global STATE
+    STATE = 'login'
     bot.reply_to(message, 'Please enter your password.')
 
 @bot.message_handler(commands=['shutdown'])
@@ -35,23 +37,28 @@ def send_welcome(message):
         
         if (diff_time.total_seconds() < 180):
             bot.reply_to(message, 'Your PC shut down.')
-            os.system("shutdown now -h")
+            #os.system("shutdown now -h")
+            os.system("shutdown /s /t 0")
         else:
             bot.reply_to(message, 'Please login.')
 
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
+    global LAST_LOGIN
     if STATE == 'login':
         entered_password = message.text
         if entered_password == PASSWORD:
             LAST_LOGIN = datetime.now()
             bot.reply_to(message, 'Login was Successful.')
             return
+            
         else:
             bot.reply_to(message, 'Incorrect password.')
             return
+            
 
     bot.reply_to(message, 'This is not a valid message.')
     return
+    
 
 bot.infinity_polling()
