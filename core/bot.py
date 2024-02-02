@@ -3,15 +3,17 @@ import yaml
 import os
 from datetime import datetime
 
-LAST_LOGIN = None
 API_TOKEN = None
 PASSWORD = None
+OS = None
+LAST_LOGIN = None
 STATE = 'start'
 
 with open('settings.yml', 'r') as f:
     data = yaml.full_load(f)
 API_TOKEN = data['bot_token']
 PASSWORD = data['password']
+OS = data['os']
 
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -37,8 +39,10 @@ def send_welcome(message):
         
         if (diff_time.total_seconds() < 180):
             bot.reply_to(message, 'Your PC shut down.')
-            #os.system("shutdown now -h")
-            os.system("shutdown /s /t 0")
+            if OS.lower() == 'windows':
+                os.system("shutdown /s /t 0")
+            elif OS.lower() == 'linux':
+                os.system("shutdown now -h")
         else:
             bot.reply_to(message, 'Please login.')
 
@@ -58,7 +62,6 @@ def echo_message(message):
             
 
     bot.reply_to(message, 'This is not a valid message.')
-    return
-    
+    return 
 
 bot.infinity_polling()

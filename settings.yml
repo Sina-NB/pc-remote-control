@@ -1,2 +1,3 @@
-bot_token: 6929643510:AAF7sILSALJWnSSYj8ymEJqNhHIz1MKRYqQ
-password: MyPassword
+bot_token: <BOT_TOKEN> # Telegram bot token
+password: <YOUR_PASSWORD> # Set your password for authentication
+os: <OS_TYPE> # This can be windows or linux
