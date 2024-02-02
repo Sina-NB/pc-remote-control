@@ -1,38 +1,57 @@
-#!/usr/bin/python
-
-# This is a simple echo bot using the decorator mechanism.
-# It echoes any incoming text messages.
-
 import telebot
 import yaml
 import os
+from datetime import datetime
+
+LAST_LOGIN = None
+API_TOKEN = None
+PASSWORD = None
+STATE = 'start'
 
 with open('settings.yml', 'r') as f:
     data = yaml.full_load(f)
-API_TOKEN = data['token']
-print(f'Starting on token: {API_TOKEN}')
+API_TOKEN = data['bot_token']
+PASSWORD = data['password']
 
 bot = telebot.TeleBot(API_TOKEN)
 
-
-# Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, """\
-Hi there, I am EchoBot.
-I am here to echo your kind words back to you. Just say anything nice and I'll say the exact same thing to you!\
-""")
+    state = 'start'
+    bot.reply_to(message, 'Hi there, I am PC Controller Bot. I will help you to be able to control your system from anywhere.')
+
+@bot.message_handler(commands=['login'])
+def send_welcome(message):
+    state = 'login'
+    bot.reply_to(message, 'Please enter your password.')
 
 @bot.message_handler(commands=['shutdown'])
 def send_welcome(message):
-    bot.reply_to(message, 'Your PC Shutdowns')
-    os.system("shutdown now -h")
+        if LAST_LOGIN:
+            diff_time = datetime.now() - LAST_LOGIN
+        else:
+            bot.reply_to(message, 'Please login.')
+            return
+        
+        if (diff_time.total_seconds() < 180):
+            bot.reply_to(message, 'Your PC shut down.')
+            os.system("shutdown now -h")
+        else:
+            bot.reply_to(message, 'Please login.')
 
-
-# Handle all other messages with content_type 'text' (content_types defaults to ['text'])
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    bot.reply_to(message, message.text)
+    if STATE == 'login':
+        entered_password = message.text
+        if entered_password == PASSWORD:
+            LAST_LOGIN = datetime.now()
+            bot.reply_to(message, 'Login was Successful.')
+            return
+        else:
+            bot.reply_to(message, 'Incorrect password.')
+            return
 
+    bot.reply_to(message, 'This is not a valid message.')
+    return
 
-bot.polling()
+bot.infinity_polling()
