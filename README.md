@@ -33,3 +33,6 @@ python core/bot.py
 | /start | Start bot |
 | /login | Login | You must enter your password after this command
 | /shutdown | Shutdown pc |
+
+### Bugs or Opinion
+Feel free to let me know if there are any problems or any request you have for this repo.
